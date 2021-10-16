@@ -65,7 +65,13 @@ def out_df_items(df):
     date, time = df['trade_date'].values[0], df['time'].values[0]
     #date = df['trade_date'].values[0]
     df.drop(columns=['trade_date', 'time'], inplace=True)
-    return df, date, time
+    cols = list(df.columns)
+    cols.remove('adj_factor')
+    #print(cols)
+    #cols.insert(1, "cn_name")
+    df1 = df[cols]
+    #print(df1.head())
+    return df1, date, time
 
 
 def out_swl_item(df):
@@ -101,19 +107,25 @@ def write_stock_RS_OH_MA_new():
     #table_name='stock_RS_OH_MA' if  current < start else 'stock_RS_OH_MA_new'
     table_name = 'stock_RS_OH_MA_new' 
     #print(table_name)
-
-    cols = ['cn_name','code', 'close','pct_chg','OH',"OL","swl_L3",'rs_5', 'rs_10','rs_250']
-    cols2= ['cn_name','code', 'close','pct_chg','ma20','ma250','rs_5','rs_20','rs_250','OH',"OL","swl_L3"]
+    cols = ['code', 'cn_name', 'close', 'pct_chg',
+            #'ma5', 'ma10', 'ma20', 'ma60', 'ma120', 'ma250',
+            'rs_5', 'rs_10', 'rs_20', 'rs_60', 'rs_120', 'rs_250',
+            #'rt5', 'rt10', 'rt20', 'rt60', 'rt120', 'rt250',
+            'H', 'L', 'OH', 'OL', 'swl_L1', 'swl_L2', 'swl_L3']
+    cols1 = ['code','cn_name', 'close','pct_chg','OH',"OL","swl_L3",'rs_5', 'rs_10','rs_250']
+    cols2= ['code','cn_name', 'close','pct_chg','ma20','ma250','rs_5','rs_20','rs_250','OH',"OL","swl_L3"]
     try:
         st.text('申万行业相对强度')
         df = pd.read_sql_table(table_name,conn)
         df.rename(columns={'name':'cn_name'},inplace=True)
         df.drop_duplicates(subset=None,keep='first',inplace=True)
         data = out_df_items(df)
-        data_by_pctchg = data[0].sort_values(by='pct_chg', ascending=False)
+        
+        df1 = data[0][cols]
+        df2 = data[0][cols1]
+        data_by_pctchg = df1.sort_values(by='pct_chg', ascending=False)
         st.write("更新时间: ",data[1],data[2])
         #st.write(data[0])
-        df2 = data[0][cols]
         df2 = df2.dropna(axis=0,how='any')
         df2 = df2.sort_values(by='rs_5')
         #st.write(df2)
@@ -128,7 +140,6 @@ def write_stock_RS_OH_MA_new():
         st.write('一年新低', str(len(df[df.OL <2])),'只' )
         st.write(df2[df2.OL < 2], width=1200, height=600) 
   
-        
         code = st.text_input('Input stock code:','600519')
         df1 = data[0][cols2]
         st.write(data[1], data[2])
@@ -142,14 +153,15 @@ def stock_select_PRS(table_name='stock_select_PRS'):
     try:
         df = pd.read_sql_table(table_name,conn)
         df.rename(columns={'name':'cn_name'},inplace=True)
-        #print(df)
+
         data = out_df_items(df)
+
         st.write('相对强度 top', str(len(df)), '只')
         st.write(data[1], data[2])
-        st.dataframe(data[0], width=1200, height=900)
+        st.dataframe(df, width=1200, height=900)
     except Exception as e:
         print(e)
-   
+
 
 def stock_fundmentals(): #TODO
     #df = pd.read_sql_table('ROE_CF_SR_INC', conn)
@@ -196,7 +208,9 @@ def other_info():
     st.write('myselect','http://quote.eastmoney.com/zixuan/?from=home')
     st.write("金十数据", "https://www.jin10.com/")
     st.write("商品价格","http://top.100ppi.com/zdb/detail-day---1.html")
-    st.write('investing','https://hk.investing.com')    
+    st.write('investing','https://hk.investing.com') 
+    st.write("rome's blog", "https://rome.tk")
+    st.write('cgf','https://suo.yt/sOaQn0f')
 
 def main():
     selects = st.sidebar.selectbox(
