@@ -14,9 +14,10 @@ data source from tusharepro and eastmoney.
 5. cp ~/config.json  ~/.rrshare/setting/config.json  
 6. install sql :  postgresql  
 7. rrshare init 
-8. rrshare update-data  
-9. rrshare start-streamlit  
-10. set start rrshare streamlit at setup  
+
+9. rrshare update-data  
+10. rrshare start-streamlit  
+11. set start rrshare streamlit at setup  
       create a start-streamlit.service use systemctl unit.  
       
 	sudo cp rrshare_streamlit.service /etc/systemd/system/rrshare-streamlit.service  
