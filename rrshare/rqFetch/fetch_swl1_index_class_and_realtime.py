@@ -9,6 +9,15 @@ from rrshare.rqUtil import rq_util_get_last_tradedate, rq_util_if_trade, rq_util
 SWL1_INDEX = ('801010','801030','801040','801050','801080','801110','801120','801130','801140','801150','801160','801170','801180','801200','801210', \
               '801230','801710','801720','801730','801740','801750','801760','801770','801780','801790','801880','801890','801950','801960','801970','801980')
 
+SWL2_INDEX = ('801012','801014','801015','801016','801017','801018','801032','801033','801034','801036','801037','801038','801039','801043','801044', \
+            '801045','801051','801053','801054','801055','801056','801072','801074','801076','801077','801078','801081','801082','801083','801084','801085','801086', \
+            '801092','801093','801095','801096','801101','801102','801103','801104','801111','801112','801113','801114','801115','801116','801124','801125','801126', \
+            '801127','801128','801129','801131','801132','801133','801141','801142','801143','801145','801151','801152','801153','801154','801155','801156','801161', \
+            '801163','801178','801179','801181','801183','801191','801193','801194','801202','801203','801204','801206','801218','801219','801223','801231','801711', \
+            '801712','801713','801721','801722','801723','801724','801726','801731','801733','801735','801736','801737','801738','801741','801742','801743','801744', \
+            '801745','801764','801765','801766','801767','801769','801782','801783','801784','801785','801881','801951','801952','801962','801963','801971','801972', \
+            '801981','801982','801991','801992','801993','801994','801995')
+
 # sw-cons
 sw_cons_headers = {
     "Accept": "*/*",
@@ -29,17 +38,29 @@ sw_cons_headers = {
 sw_url = "http://www.swsindex.com/handler.aspx"
 
 # sw-payload
-swl1_payload = {
+swl_payload = {
     "tablename": "swzs",
     "key": "L1",
     "p": "1",
-    "where": "L1 in('801010','801020','801030','801040','801050','801080','801110','801120','801130','801140','801150','801160','801170','801180','801200','801210', \
-    '801230','801710','801720','801730','801740','801750','801760','801770','801780','801790','801880','801890','801950','801960','801970','801980')",
+    "where": "L1 in()",
     "orderby": "",
     "fieldlist": "L1,L2,L3,L4,L5,L6,L7,L8,L11",
     "pagecount": "28",
     "timed": "",
 }
+
+payload = {
+            'tablename': 'swzs',
+            'key': 'L1',
+            'p': f'{i}',
+            'where': f"L1 in {SWL_INDEX},  
+             #SWL1_INDEX, SWL2_INDEX
+            'orderby': '',
+            'fieldlist': 'L1,L2,L3,L4,L5,L6,L7,L8,L11',
+            'pagecount': '28',
+            'timed': '{}'.format(int(time.time()*1000))
+            ##其中页码p是变量，一共2页。timed也是变量，通过 time.time() 来获取时间戳然后将取值到千分位
+            }
 
 # sw-headers
 sw_headers = {
@@ -57,18 +78,7 @@ sw_headers = {
     'X-Requested-With': 'XMLHttpRequest'
 }
 
-class Swsindex(object):
-    """http://www.swsindex.com/idx0120.aspx?columnid=8832#
-    industry class:
-    http://www.swsindex.com/downloadfiles.aspx?swindexcode=SwClass&type=530&columnid=8892
-
-    get sw industry index class and realtime quote from swsindex.com by post method.
-    """
-    
-    def __init__(self):
-        
-        self.url = 'http://www.swsindex.com/handler.aspx'
-        self.headers = {
+headers= {
             'Accept': 'application/json, text/javascript, */*',
             'Accept-Encoding': 'gzip, deflate',
             'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
@@ -83,20 +93,24 @@ class Swsindex(object):
             }
 
 
+class Swsindex(object):
+    """http://www.swsindex.com/idx0120.aspx?columnid=8832#
+    industry class:
+    http://www.swsindex.com/downloadfiles.aspx?swindexcode=SwClass&type=530&columnid=8892
+
+    get sw industry index class and realtime quote from swsindex.com by post method.
+    """
+    
+    def __init__(self):
+        self.url = 'http://www.swsindex.com/handler.aspx'
+        self.headers = headers
+
+
     def get_swsindex_L1_realtime(self):
         result = []
         for i in range(1,3):
-            postdata = {
-            'tablename': 'swzs',
-            'key': 'L1',
-            'p': '{}'.format(i),
-            'where': "L1 in SWL1_INDEX,
-            'orderby': '',
-            'fieldlist': 'L1,L2,L3,L4,L5,L6,L7,L8,L11',
-            'pagecount': '28',
-            'timed': '{}'.format(int(time.time()*1000))
-            ##其中页码p是变量，一共2页。timed也是变量，通过 time.time() 来获取时间戳然后将取值到千分位
-            }
+            postdata = payload.update{"where" : f"L1 in{SWL1_INDEX}"}
+            print(postdata)
             self.headers['Referer'] = 'http://www.swsindex.com/idx0120.aspx?columnid=8832'
             #print(self.headers)
             req = requests.post(self.url, headers=self.headers, data=postdata)
@@ -211,7 +225,8 @@ class Swsindex(object):
         result.extend(data["root"])
     temp_df = pd.DataFrame(result)
     temp_df["L2"] = temp_df["L2"].str.strip()
-    temp_df.columns = ["指数代码", "指数名称", "昨收盘", "今开盘", "成交额", "最高价", "最低价", "最新价", "成交量"]
+    temp_df.columns = ["index_code", "index_name", "pre_close", "open", "amount", "high", "low", "close", "vol"]
+    """
     temp_df["昨收盘"] = pd.to_numeric(temp_df["昨收盘"])
     temp_df["今开盘"] = pd.to_numeric(temp_df["今开盘"])
     temp_df["成交额"] = pd.to_numeric(temp_df["成交额"])
@@ -219,7 +234,8 @@ class Swsindex(object):
     temp_df["最低价"] = pd.to_numeric(temp_df["最低价"])
     temp_df["最新价"] = pd.to_numeric(temp_df["最新价"])
     temp_df["成交量"] = pd.to_numeric(temp_df["成交量"])
-    return temp_df    
+    """
+    return temp_df.round(2)    
       
 
 if __name__ == '__main__':
