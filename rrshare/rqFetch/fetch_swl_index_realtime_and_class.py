@@ -53,7 +53,7 @@ payload = {
             'tablename': 'swzs',
             'key': 'L1',
             'p': f'{i}',
-            'where': f"L1 in {SWL_INDEX},  
+            'where': f"L1 in {SWL_INDEX}",  
              #SWL1_INDEX, SWL2_INDEX
             'orderby': '',
             'fieldlist': 'L1,L2,L3,L4,L5,L6,L7,L8,L11',
@@ -109,7 +109,7 @@ class Swsindex(object):
     def get_swsindex_L1_realtime(self):
         result = []
         for i in range(1,3):
-            postdata = payload.update{"where" : f"L1 in{SWL1_INDEX}"}
+            postdata = payload.update({"where" : f"L1 in{SWL1_INDEX}"})
             print(postdata)
             self.headers['Referer'] = 'http://www.swsindex.com/idx0120.aspx?columnid=8832'
             #print(self.headers)
