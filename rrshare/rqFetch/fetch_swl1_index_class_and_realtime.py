@@ -120,6 +120,7 @@ class Swsindex(object):
         df['trade_date'] = trade_time 
         return df.round(2)
 
+      
     def get_index_name(self, out_type=dict):
         
         data = self.get_swsindex_L1_realtime()[['index', 'name']]
@@ -173,6 +174,52 @@ class Swsindex(object):
             df = df.append(one)
         return df
 
+    
+  def sw_index_second_spot() -> pd.DataFrame:
+    """
+    申万二级行业-实时行情数据
+    http://www.swsindex.com/idx0120.aspx?columnId=8833
+    :return: 申万二级行业-实时行情数据
+    :rtype: pandas.DataFrame
+    """
+    result = []
+    for i in range(1, 8):
+        payload = {
+            "tablename": "swzs",
+            "key": "L1",
+            "p": "1",
+            "where": "L1 in('801012','801014','801015','801016','801017','801018','801032','801033','801034','801036','801037','801038','801039','801043','801044', \
+            '801045','801051','801053','801054','801055','801056','801072','801074','801076','801077','801078','801081','801082','801083','801084','801085','801086', \
+            '801092','801093','801095','801096','801101','801102','801103','801104','801111','801112','801113','801114','801115','801116','801124','801125','801126', \
+            '801127','801128','801129','801131','801132','801133','801141','801142','801143','801145','801151','801152','801153','801154','801155','801156','801161', \
+            '801163','801178','801179','801181','801183','801191','801193','801194','801202','801203','801204','801206','801218','801219','801223','801231','801711', \
+            '801712','801713','801721','801722','801723','801724','801726','801731','801733','801735','801736','801737','801738','801741','801742','801743','801744', \
+            '801745','801764','801765','801766','801767','801769','801782','801783','801784','801785','801881','801951','801952','801962','801963','801971','801972', \
+            '801981','801982','801991','801992','801993','801994','801995')",
+            "orderby": "",
+            "fieldlist": "L1,L2,L3,L4,L5,L6,L7,L8,L11",
+            "pagecount": "124",
+            "timed": "",
+        }
+        payload.update({"p": i})
+        payload.update({"timed": int(time.time() * 1000)})
+        r = requests.post(sw_url, headers=sw_headers, data=payload)
+        data = r.content.decode()
+        data = data.replace("'", '"')
+        data = json.loads(data)
+        result.extend(data["root"])
+    temp_df = pd.DataFrame(result)
+    temp_df["L2"] = temp_df["L2"].str.strip()
+    temp_df.columns = ["指数代码", "指数名称", "昨收盘", "今开盘", "成交额", "最高价", "最低价", "最新价", "成交量"]
+    temp_df["昨收盘"] = pd.to_numeric(temp_df["昨收盘"])
+    temp_df["今开盘"] = pd.to_numeric(temp_df["今开盘"])
+    temp_df["成交额"] = pd.to_numeric(temp_df["成交额"])
+    temp_df["最高价"] = pd.to_numeric(temp_df["最高价"])
+    temp_df["最低价"] = pd.to_numeric(temp_df["最低价"])
+    temp_df["最新价"] = pd.to_numeric(temp_df["最新价"])
+    temp_df["成交量"] = pd.to_numeric(temp_df["成交量"])
+    return temp_df    
+      
 
 if __name__ == '__main__':
     swi = Swsindex()
