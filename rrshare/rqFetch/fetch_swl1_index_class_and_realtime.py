@@ -6,8 +6,6 @@ import pandas as pd
 
 from rrshare.rqUtil import rq_util_get_last_tradedate, rq_util_if_trade, rq_util_if_tradetime, rq_util_date_today
 
-
-
 SWL1_INDEX = ('801010','801030','801040','801050','801080','801110','801120','801130','801140','801150','801160','801170','801180','801200','801210', \
               '801230','801710','801720','801730','801740','801750','801760','801770','801780','801790','801880','801890','801950','801960','801970','801980')
 
@@ -184,6 +182,5 @@ if __name__ == '__main__':
     print(swi.get_index_name())
     print(swi.get_swl1_class_one()) #pk
     #print(swi.get_swl1_class()) #ok
-    
-
+   
     pass
