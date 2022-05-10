@@ -3,11 +3,7 @@ import requests
 import json
 import time
 import pandas as pd
-
-<<<<<<< HEAD
-=======
-from rrshare.rqUtil import rq_util_get_last_tradedate, rq_util_if_trade, rq_util_if_tradetime, rq_util_date_today
->>>>>>> 353d7995cd72ed7996cd808502382567c2198f95
+#from rrshare.rqUtil import rq_util_get_last_tradedate, rq_util_if_trade, rq_util_if_tradetime, rq_util_date_today
 
 SWL1_INDEX = ('801010','801030','801040','801050','801080','801110','801120','801130','801140','801150','801160','801170','801180','801200','801210', \
               '801230','801710','801720','801730','801740','801750','801760','801770','801780','801790','801880','801890','801950','801960','801970','801980')
@@ -56,22 +52,6 @@ swl_payload = {
     "timed": "",
 }
 
-<<<<<<< HEAD
-=======
-payload = {
-            'tablename': 'swzs',
-            'key': 'L1',
-            'p': f'{i}',
-            'where': f"L1 in {SWL_INDEX}",  
-             #SWL1_INDEX, SWL2_INDEX
-            'orderby': '',
-            'fieldlist': 'L1,L2,L3,L4,L5,L6,L7,L8,L11',
-            'pagecount': '28',
-            'timed': '{}'.format(int(time.time()*1000))
-            ##其中页码p是变量，一共2页。timed也是变量，通过 time.time() 来获取时间戳然后将取值到千分位
-            }
-
->>>>>>> 353d7995cd72ed7996cd808502382567c2198f95
 # sw-headers
 sw_headers = {
     'Accept': 'application/json, text/javascript, */*',
@@ -88,11 +68,8 @@ sw_headers = {
     'X-Requested-With': 'XMLHttpRequest'
 }
 
-<<<<<<< HEAD
-
 
 def get_swl1_class_one(index='801010'):
-=======
 headers= {
             'Accept': 'application/json, text/javascript, */*',
             'Accept-Encoding': 'gzip, deflate',
@@ -149,7 +126,6 @@ class Swsindex(object):
         print(trade_time)
         df['trade_date'] = trade_time 
         return df.round(2)
-
       
     def get_index_name(self, out_type=dict):
         
@@ -162,7 +138,6 @@ class Swsindex(object):
 
 
     def get_swl1_class_one(self,index='801010'):
->>>>>>> 353d7995cd72ed7996cd808502382567c2198f95
         """http://www.swsindex.com/idx0210.aspx?swindexcode=801010
         """
         self.headers['Referer'] = 'http://www.swsindex.com/idx0210.aspx?swindexcode={}'.format(index)
@@ -179,10 +154,6 @@ class Swsindex(object):
             'timed': '{}'.format(int(time.time()*1000))
             }
             #print(postdata)
-<<<<<<< HEAD
-=======
-            
->>>>>>> 353d7995cd72ed7996cd808502382567c2198f95
             req = requests.post(self.url, headers=self.headers, data=postdata)
             data = req.content.decode()
             data = data.replace("'",'"')
@@ -197,10 +168,8 @@ class Swsindex(object):
         df.rename(columns={'stockcode': 'code','stockname':'name'}, inplace=True)
         return df
 
-<<<<<<< HEAD
     
 def sw_index_spot(level='L1'):
-=======
 
     def get_swl1_class(self):
         L1_INDEX = list(SWL1_INDEX)
@@ -214,7 +183,6 @@ def sw_index_spot(level='L1'):
 
     
   def sw_index_second_spot() -> pd.DataFrame:
->>>>>>> 353d7995cd72ed7996cd808502382567c2198f95
     """
     申万二级行业-实时行情数据
     http://www.swsindex.com/idx0120.aspx?columnId=8833
@@ -222,7 +190,6 @@ def sw_index_spot(level='L1'):
     :rtype: pandas.DataFrame
     """
     result = []
-<<<<<<< HEAD
     if level == 'L1':
         N = 3
         N_pages = 28
@@ -239,7 +206,6 @@ def sw_index_spot(level='L1'):
         payload.update({"pagecount": f"{N_pages}"})
         payload.update({"timed": int(time.time() * 1000)})
         payload.update({"where": f"L1 in{SWL_INDEX}"})
-=======
     for i in range(1, 8):
         payload = {
             "tablename": "swzs",
@@ -260,7 +226,6 @@ def sw_index_spot(level='L1'):
         }
         payload.update({"p": i})
         payload.update({"timed": int(time.time() * 1000)})
->>>>>>> 353d7995cd72ed7996cd808502382567c2198f95
         r = requests.post(sw_url, headers=sw_headers, data=payload)
         data = r.content.decode()
         data = data.replace("'", '"')
@@ -269,25 +234,11 @@ def sw_index_spot(level='L1'):
     temp_df = pd.DataFrame(result)
     temp_df["L2"] = temp_df["L2"].str.strip()
     temp_df.columns = ["index_code", "index_name", "pre_close", "open", "amount", "high", "low", "close", "vol"]
-<<<<<<< HEAD
-=======
-    """
-    temp_df["昨收盘"] = pd.to_numeric(temp_df["昨收盘"])
-    temp_df["今开盘"] = pd.to_numeric(temp_df["今开盘"])
-    temp_df["成交额"] = pd.to_numeric(temp_df["成交额"])
-    temp_df["最高价"] = pd.to_numeric(temp_df["最高价"])
-    temp_df["最低价"] = pd.to_numeric(temp_df["最低价"])
-    temp_df["最新价"] = pd.to_numeric(temp_df["最新价"])
-    temp_df["成交量"] = pd.to_numeric(temp_df["成交量"])
-    """
->>>>>>> 353d7995cd72ed7996cd808502382567c2198f95
     return temp_df.round(2)    
       
 
 if __name__ == '__main__':
-<<<<<<< HEAD
     print(sw_index_spot(level="L2"))
-=======
     swi = Swsindex()
     #print(swi.url)
     #print(swi.headers)
@@ -296,5 +247,4 @@ if __name__ == '__main__':
     print(swi.get_swl1_class_one()) #pk
     #print(swi.get_swl1_class()) #ok
    
->>>>>>> 353d7995cd72ed7996cd808502382567c2198f95
     pass
