@@ -48,7 +48,7 @@ sw_headers = {
 }
 
     
-def sw_index_spot() -> pd.DataFrame:
+def sw_index_spot(level="L1") -> pd.DataFrame:
     """
     申万一，二级行业-实时行情数据
     http://www.swsindex.com/idx0120.aspx?columnId=8833
