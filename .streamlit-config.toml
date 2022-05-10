@@ -1,0 +1,7 @@
+[browser]
+serverPort = 8501
+serverAddress = "stock.romepeng.tk"
+gatherUsageStats = false
+
+[server]
+enableCORS = fasle
