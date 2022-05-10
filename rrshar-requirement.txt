@@ -1,0 +1,9 @@
+motor
+pymongo
+six
+pyecharts
+click
+spacy
+
+
+

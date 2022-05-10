@@ -21,6 +21,8 @@ from rrshare.rqUtil import (PgsqlClass, rq_util_get_last_tradedate)
 from rrshare.rqFetch import (pro, fetch_stock_day_adj_fillna_from_tusharepro)
 from rrshare.rqFetch.fetch_swl_daily import fetch_swl_daily_tspro_adv
 
+from rrshare.rqFetch import (fetch_stock_bar_hfq_from_tusharepro, fetch_stock_list_tusharepro)
+
 lastTD = rq_util_get_last_tradedate()
 print(lastTD)
 
@@ -250,6 +252,8 @@ def rq_save_stock_day_adj_fillna_pg(start_date='20190101'): #20050101
             print(e)
 
 
+
+
 def rq_save_swl_day_pg(start_date='2020-01-01'): #from 2015-01-04
     table_name='swl_day'
     t = time.localtime(time.time())
@@ -300,14 +304,61 @@ def rq_save_swl_day_pg(start_date='2020-01-01'): #from 2015-01-04
             print(e)
 
 
+def rq_save_stock_bar_hfq_pg(start_date='19900101'): #20050101i#TODO
+    table_name='stock_bar_hfq'    
+    t = time.localtime(time.time())
+    if int(time.strftime('%H%M%S',t))<180000:   #晚上6点之后在更新当天数据，以免不及时
+        t = time.localtime(time.time()-3600*24)
+        tS = time.strftime("%Y-%m-%d", t)
+    else:                
+        tS = time.strftime("%Y-%m-%d", t)    
+    end_date=tS
+    print(end_date)
+    try: 
+        mes=f'select distinct trade_date FROM {table_name};'
+        trade_data_pg = load_data_from_postgresql(mes).trade_date.tolist()
+        #print(trade_data_pg[-3:])
+        for i in range(len(trade_data_pg)):
+            trade_data_pg[i]=trade_data_pg[i].strftime("%Y-%m-%d")
+    except: #第一次运行
+        trade_data_pg=list()
+    #print(trade_data_pg[-3:])
+    if isinstance(start_date,int):
+        start_date=rq_util_date_int2str(start_date)
+    elif len(start_date)==8:
+        start_date=start_date[0:4]+'-'+start_date[4:6]+'-'+start_date[6:8]
+    #print(start_date)
+    trade_date=rq_util_get_trade_range(start_date,end_date) 
+    #print(trade_date)
+    trade_date2=list(set(trade_date).difference(set(trade_data_pg))) #差集 在trade_date 中 不在trade_data_pg
+    trade_date2.sort()
+    print(trade_date2)
+    if len(trade_date2)==0:
+        rq_util_log_info('Stock day adj is up to date and does not need to be updated')
+    for i in trade_date2:
+        print(i)
+        try:
+            t=time.time()        
+            df=fetch_stock_day_adj_fillna_from_tusharepro(i)    
+            #i=i[7:10].lower()+i[0:6]
+            save_data_to_postgresql(table_name, df, 'append')
+            t1=time.time()
+            tt = round((t1-t),4)
+            time.sleep(4)
+            rq_util_log_info(f'save {i} {table_name} success,take {tt}S')        
+        except Exception as e:
+            print(e)
+
+
+
 if __name__ == '__main__':          
     
     rq_save_stock_list_pg()
-    rq_save_swl_day_pg('20200101')
+    #rq_save_swl_day_pg('20200101')
 
     #储存日线数据  包含ts_pro中"daily" "daily_basic" "adj_factor"所有内容 
     #由于采用日期对比机制进行储存，可以增量储存之前数据
     #rq_save_stock_day_pg('20180101')  #rq_save_stock_day_pg('20180101')储存起始日期
-    rq_save_stock_day_adj_fillna_pg('20200101')
+    #rq_save_stock_day_adj_fillna_pg('20200101')
         
     pass

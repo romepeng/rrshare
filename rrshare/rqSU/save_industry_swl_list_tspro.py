@@ -1,5 +1,3 @@
-from logging import exception
-from os import EX_NOINPUT
 import time
 import pandas as pd
 
@@ -11,16 +9,6 @@ from rrshare.rqUtil import (rq_util_code_tosrccode,rq_util_code_tostr)
 #from rrshare.rqFetch.rqCodeName import (swl_index_to_name, stock_code_to_name)
 from rrshare.rqUtil import PgsqlClass
 from rrshare.rqFetch import Swsindex
-
-# add swlIndex
-from rrshare.swlIndex import (
-        sw_index_spot,
-        sw_index_second_spot,
-        sw_index_daily,
-        sw_index_third_info,
-        sw_index_cons,
-        sw_index_third_cons,
-        )
 
 conn = PgsqlClass().client_pg('rrshare')
 
@@ -47,33 +35,17 @@ class SwlIndexStock(object):
         return list(df['ts_code'])
 
     
-    def fetch_swl_index(self,level="L1",datasrc="legulegu.com"): #datasrc=""( tusharepro)
-        if not datasrc:
-            df_tspro = pro.index_classify(level=level,src='SW2021')   #update
-            df_tspro['index'] = df_tspro['index_code'].map(lambda x: x[:6])
-            df_tspro['name_level'] = df_tspro['industry_name'] + "_" + df_tspro['level']
-            print(f"get_swl_{lvel}_index_classify")
-            time.sleep(10)
-            return df_tspro
-        else:
-            sw_level=f"level{level[-1]}"
-            #print(sw_level)
-            df_swl = pd.DataFrame()
-            swl_spot= sw_index_third_info(sw_level)
-            df_swl["index_code"] = swl_spot["行业代码"]
-            df_swl["index"] = df_swl["index_code"].map(lambda x: x[:6])
-            df_swl["index_name"] = swl_spot["行业名称"]
-            df_swl["level"] = f"{level}"
-            df_swl["name_level"] = swl_spot["行业名称"] + "_" + df_swl["level"]
-            print(f"get_swl_{level}_index")
-            return df_swl
+    def fetch_swl_index(self,level=""):
+        df_tspro = pro.index_classify(level=level,src='SW2021')   #update
+        df_tspro['index'] = df_tspro['index_code'].map(lambda x: x[:6])
+        df_tspro['name_level'] = df_tspro['industry_name'] + "_" + df_tspro['level']
+        print("get_swl_index")
+        time.sleep(10)
+        return df_tspro
 
 
     def save_swl_list(self):
-        df_swl = pd.DataFrame()
-        for l in self.LEVEL:
-            df = self.fetch_swl_index(l)
-            df_swl = df_swl.append(df)
+        df_swl = self.fetch_swl_index()
         PgsqlClass().insert_to_psql(df_swl, 'rrshare','swl_list',if_exists='replace')
 
 
@@ -92,7 +64,6 @@ class SwlIndexStock(object):
 
         return {ts_code : df['name_level'].values.tolist()}
 
-
     def swl_contains_stock(self):
         swl_all = pd.DataFrame()
         for level in self.LEVEL:
@@ -104,7 +75,6 @@ class SwlIndexStock(object):
                 swl_all['name_level'] = swl_all['index_name'] + "_" + str(level)
             #print(data)
         return swl_all
-
 
     def save_swl_contains_stock(self):
         swl_all = pd.DataFrame()
@@ -179,14 +149,12 @@ def rq_save_swl_industry_list_stock_belong():
 
 if __name__ == '__main__':
     li = SwlIndexStock()
-     
     print(li.fetch_swl_index())
-    li.save_swl_list() 
-    
-    #print(li.swl_index_to_name_dict())
-    #print(li.stock_belong_swl('600196'))
-    #df = li.swl_contains_stock()
-    #print(df)
+    li.save_swl_list()
+    print(li.swl_index_to_name_dict())
+    print(li.stock_belong_swl('600196'))
+    df = li.swl_contains_stock()
+    print(df)
     #li.save_swl_contains_stock()
     #li.read_swl_contains_stock()
     #li.stock_belong_swl_pro()

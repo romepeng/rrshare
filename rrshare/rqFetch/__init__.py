@@ -16,5 +16,6 @@ from rrshare.rqFetch.fetch_stock_day_adj_fillna_from_tusharepro import (
                 fetch_stock_day_adj_fillna_from_tusharepro,
                 fetch_realtime_price_stock_day_adj)
 
+from rrshare.rqFetch.fetch_stock_bar_hfq_from_tusharepro import (fetch_get_stock_bar_hfq_one,fetch_stock_list_tusharepro)
 
 from rrshare.rqFetch.fetch_swl1_index_class_and_realtime import Swsindex

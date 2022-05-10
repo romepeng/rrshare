@@ -5,7 +5,6 @@ from rrshare.rqFetch import  pro
 from rrshare.rqUtil import setting
 from rrshare.rqUtil import (rq_util_code_tosrccode,rq_util_code_tostr)
 from rrshare.rqUtil import read_data_from_pg, client_pgsql
-from rrshare.swlIndex import sw_index_daily, sw_index_daily_indicator
 
 
 def fetch_swl_daily_tspro(trade_date=""):
@@ -15,9 +14,8 @@ def fetch_swl_daily_tspro(trade_date=""):
     """
     trade_date = rq_util_date_str2int(trade_date) if trade_date else rq_util_date_str2int(rq_util_get_last_tradedate())
     print(trade_date) 
-    swl_day = sw_index_daily(trade_date=trade_date)
-    
-    #swl_day['index'] = swl_day['ts_code'].map(lambda x: x.split(".")[0])
+    swl_day = pro.sw_daily(trade_date=trade_date)
+    swl_day['index'] = swl_day['ts_code'].map(lambda x: x.split(".")[0])
     return swl_day
     
 
@@ -36,8 +34,9 @@ def fetch_swl_daily_tspro_adv(trade_date=''):
 
 if __name__ == '__main__':
     
-    print(fetch_swl_daily_tspro(trade_date='20220506'))
-    #print(fetch_swl_daily_tspro_adv())
+    #print(pro.sw_daily(trade_date="20210401"))
+    #print(fetch_swl_daily_tspro(trade_date='20210506'))
+    print(fetch_swl_daily_tspro_adv())
     
     pass
 

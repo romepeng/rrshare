@@ -1,30 +1,4 @@
 # streamlit app
-""" streamlit.line_chart(data=None, width=0, height=0, use_container_width=True)
-    streamlit.area_chart(data=None, width=0, height=0, use_container_width=True)
-    streamlit.bar_chart(data=None, width=0, height=0, use_container_width=True)
-    streamlit.pyplot(fig=None, clear_figure=True, **kwargs)
-    streamlit.plotly_chart(figure_or_data, width=0, height=0, use_container_width=False, sharing='streamlit', **kwargs)
-    streamlit.bokeh_chart(figure, use_container_width=False)
-    streamlit.pydeck_chart(pydeck_obj=None)
-    streamlit.deck_gl_chart(spec=None, **kwargs)
-    streamlit.graphviz_chart(figure_or_dot, width=0, height=0)
-
-    st.multiselect('Multiselect', [1,2,3])
-    st.write('http://datacenter.eastmoney.com/securities/api/data/v1/get?callback=jQuery112305791870244468389_1618109280782&sortColumns=NOTICE_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1&pageSize=50&pageNumber=1&reportName=RPT_PUBLIC_OP_NEWPREDICT&columns=ALL&token=894050c76af8597a853f5b408b759f5d&filter=(REPORT_DATE%3D%272021-06-30%27)')
-    st.text_area('Area for textual entry')
-    trade_date = st.date_input('Date input')
-    st.write(trade_date)
-    st.time_input('Time entry')
-    st.file_uploader('File uploader')
-    import streamlit.components.v1 as components
-    #url_ths=f'http://data.10jqka.com.cn/financial/yjyg/'
-    #url_ths =  "http://emweb.securities.eastmoney.com/PC_HSF10/CoreConception/Index?type=soft&code=SZ300146#"
-    # embed streamlit docs in a streamlit app
-    #components.iframe(url_ths,  width=1400, height=700)    
-    Create a static component
-If your goal in creating a Streamlit Component is solely to display HTML code or render a chart from a Python visualization library, 
-Streamlit provides two methods that greatly simplify the process: components.html() and components.iframe().
-"""
 from enum import unique
 import time
 import datetime
@@ -84,7 +58,7 @@ def swl_rs_valuation_all(level):
     table_name = f'swl_rs_valuation_{level}'
     df = pd.read_sql_table(table_name, conn)
     data = out_swl_item(df)
-    st.write('申万行业相对强度和估值_{level} 更新时间：',data[1])
+    st.write(f'申万行业相对强度和估值_{level} 更新时间：',data[1])
     st.dataframe(data[0],width=1400, height=900)
     
 
@@ -152,8 +126,8 @@ def write_stock_RS_OH_MA_new():
 def stock_select_PRS(table_name='stock_select_PRS'):
     try:
         df = pd.read_sql_table(table_name,conn)
-        df.rename(columns={'name':'cn_name'},inplace=True)
-
+        #df.rename(columns={'name':'cn_name'},inplace=True)
+        print(df)
         data = out_df_items(df)
 
         st.write('相对强度 top', str(len(df)), '只')
@@ -174,7 +148,7 @@ def stock_fundmentals(): #TODO
 
 def stock_infomation():
     st.write("wencai","http://www.iwencai.com/unifiedwap/home/index?qs=pc_~soniu~info~all~homepage~enter")
-    st.write('concept','http://q.10jqka.com.cn/gn/')
+    st.write('ths_data','https://data.10jqka.com.cn')
     #x = st.slider('x')
     st.text('业绩预告')
     #url_ths=f'http://data.10jqka.com.cn/financial/yjyg/ajax/yjyg/date/2021-03-31/board/YJYZ/field/enddate/ajax/{x}/free/1/'
@@ -195,8 +169,10 @@ def stock_infomation():
     st.write(f'hsgt {url_hsgt}')
 
     st.write('cfi','http://quote.cfi.cn/cfi_industrydetails.aspx?ctype=5day&dtype=zws')
-    st.write('财联社', 'https://cls.cn')
+    st.write('财联社', 'http://cls.cn')
     st.write('雪球','https://xueqiu.com')
+    st.write('swsindex','http://www.swsindex.com/idx0120.aspx?columnId=8833')
+    st.write('legulegu-估值','https://legulegu.com/stockdata/sw-industry-overview')
 
 def other_info():
     st.write('HK','http://q.10jqka.com.cn/hk/indexYs/')
@@ -209,8 +185,9 @@ def other_info():
     st.write("金十数据", "https://www.jin10.com/")
     st.write("商品价格","http://top.100ppi.com/zdb/detail-day---1.html")
     st.write('investing','https://hk.investing.com') 
-    st.write("rome's blog", "https://rome.tk")
-    st.write('cgf','https://suo.yt/sOaQn0f')
+    #st.write('cgf_v2ray','https://gitlab.com/api/v4/projects/30347863/repository/files/data%2Fnew%2Fv2yay-update.txt/raw?ref=main&private_token=glpat-9D-AL5GiX2modB2_XQZA')
+    #st.write('cgw_clash','https://gitlab.com/api/v4/projects/30347863/repository/files/data%2Fnew%2Fclash-update.yaml/raw?ref=main&private_token=glpat-9D-AL5GiX2modB2_XQZA')
+
 
 def main():
     selects = st.sidebar.selectbox(

@@ -133,7 +133,8 @@ class Swsindex(object):
             df = df.append(one)
         return df
 
-        
+
+
 if __name__ == '__main__':
     swi = Swsindex()
     #print(swi.url)

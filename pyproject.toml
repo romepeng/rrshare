@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "rrshare"
-version = "3.10.16"
+version = "4.2.1"
 description = "stock data(from tusharepro) & analysis"
 authors = ["rome"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 tushare = "^1.2.62"
 zenlog = "^1.1"
 click = "^7.1.2"
